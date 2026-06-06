@@ -3,20 +3,21 @@ const asyncHandler = require("../../src/middlewares/asyncHandler.js");
 const bcrypt = require("bcrypt");
 const authService = require("../services/auth.service.js");
 
-const getProfile = asyncHandler(async (res, req) => {
-  const result = await authService.getProfile(req.body);
+const getProfile = asyncHandler(async (req, res) => {
+  const result = await authService.getProfile(req.userId);
 
   res.status(200).json(result);
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const result = await authService.updateProfile(req.body);
+  const result = await authService.updateProfile(req.userId, req.body);
+
 
   res.status(200).json(result);
 });
 
 const deleteAccount = asyncHandler(async (req, res) => {
-  const result = await authService.deleteAccount(req.body);
+  const result = await authService.deleteAccount(req.userId,req.body);
 
   res.status(200).json(result);
 });

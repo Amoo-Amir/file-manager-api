@@ -1,5 +1,6 @@
 const asyncHandler = require("./asyncHandler");
 const jwt = require("jsonwebtoken");
+const env = require("../config/env")
 
 module.exports = asyncHandler(async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -9,7 +10,7 @@ module.exports = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const decode = jwt.verify(token, process.env.SECRET_KEYT);
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decode.userId;
     req.userRole = decode.userRole;
     next();

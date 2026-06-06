@@ -7,11 +7,11 @@ const apiError = require("../utils/apiError");
 const register = async (data) => {
   const { email, fullName, password, phone } = data;
 
-  const normalizedEmail = String(email).toLowerCase().trim();
-
   if (!email || !fullName || !password || !phone) {
     throw new apiError("Missing required fields", 400);
   }
+
+  const normalizedEmail = String(email).toLowerCase().trim();
 
   const userExists = await User.findOne({
     email: normalizedEmail,
@@ -99,8 +99,8 @@ const Login = async (data) => {
   };
 };
 
-const getProfile = async (data) => {
-  const user = await User.findById(req.userId);
+const getProfile = async (userId) => {
+  const user = await User.findById(userId);
   if (!user) {
     throw new apiError("User not found", 404, "USER_NOT_FOUND");
   }
@@ -117,8 +117,8 @@ const getProfile = async (data) => {
   };
 };
 
-const updateProfile = async (data) => {
-  const { fullName, phone } = req.body;
+const updateProfile = async (userId, data) => {
+  const { fullName, phone } = data;
 
   if (!fullName || !phone) {
     throw new apiError(
@@ -128,7 +128,7 @@ const updateProfile = async (data) => {
     );
   }
 
-  const user = await User.findById(req.userId).select("-password");
+  const user = await User.findById(userId).select("-password");
   if (!user) {
     throw new apiError("User not found", 404, "USER_NOT_FOUND");
   }
@@ -155,13 +155,13 @@ const updateProfile = async (data) => {
   };
 };
 
-const deleteAccount = async (req, res) => {
-  const userId = req.userId;
-  const { email, password } = req.body;
+const deleteAccount = async (userId,data) => {
+  // const userId = userId;
+  const { email, password } = data;
 
   const normalaizeEmail = String(email).toLowerCase().trim();
 
-  try {
+
     if (!email || !password) {
       throw new apiError(
         "Email and password are required",
@@ -196,9 +196,7 @@ const deleteAccount = async (req, res) => {
       success: true,
       message: "Account deleted successfully",
     };
-  } catch (error) {
-    console.log(error);
-  }
+
 };
 
 const changePassword = async (data) => {

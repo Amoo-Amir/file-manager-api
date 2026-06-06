@@ -2,13 +2,16 @@ const express = require("express");
 const userController = require("../controllers/user.controller");
 const auth = require("../middlewares/auth.middleware");
 
-const app = express.Router();
+const router = express.Router();
 
-app.get("/user/profile", auth, userController.getProfile);
 
-app.patch("/user/update", auth, userController.updateProfile);
 
-app.patch("/user/changepassword", auth, userController.changePassword);
-app.delete("/user/delete", userController.deleteAccount);
+router.get("/profile", auth, userController.getProfile);
+console.log("USER ROUTES FILE LOADED");
+router.patch("/update", auth, userController.updateProfile);
 
-module.exports= app
+router.patch("/changepassword", auth, userController.changePassword);
+router.delete("/delete",auth, userController.deleteAccount);
+
+
+module.exports= router;
