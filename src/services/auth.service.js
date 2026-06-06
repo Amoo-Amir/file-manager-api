@@ -99,7 +99,154 @@ const Login = async (data) => {
   };
 };
 
+const getProfile = async (data) => {
+  const user = await User.findById(req.userId);
+  if (!user) {
+    throw new apiError("User not found", 404, "USER_NOT_FOUND");
+  }
+  return {
+    success: true,
+    message: "Profile retrieved successfully",
+    data: {
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+    },
+  };
+};
+
+const updateProfile = async (data) => {
+  const { fullName, phone } = req.body;
+
+  if (!fullName || !phone) {
+    throw new apiError(
+      "Full name and phone are required",
+      400,
+      "VALIDATION_ERROR",
+    );
+  }
+
+  const user = await User.findById(req.userId).select("-password");
+  if (!user) {
+    throw new apiError("User not found", 404, "USER_NOT_FOUND");
+  }
+
+  if (fullName) {
+    user.fullName = fullName;
+  }
+  if (phone) {
+    user.phone = phone;
+  }
+
+  await user.save();
+
+  return {
+    success: true,
+    message: "Profile updated successfully",
+    data: {
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    },
+  };
+};
+
+const deleteAccount = async (req, res) => {
+  const userId = req.userId;
+  const { email, password } = req.body;
+
+  const normalaizeEmail = String(email).toLowerCase().trim();
+
+  try {
+    if (!email || !password) {
+      throw new apiError(
+        "Email and password are required",
+        400,
+        "VALIDATION_ERROR",
+      );
+    }
+
+    const user = await User.findOne({
+      email: normalaizeEmail,
+    }).select("+password");
+    if (!user) {
+      throw new apiError("User not found", 404, "USER_NOT_FOUND");
+    }
+
+    if (userId?.toString() !== user._id.toString()) {
+      throw new apiError(
+        "You are not allowed to delete this account",
+        403,
+        "FORBIDDEN",
+      );
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new apiError("Invalid credentials", 401, "INVALID_CREDENTIALS");
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    return {
+      success: true,
+      message: "Account deleted successfully",
+    };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const changePassword = async (data) => {
+  const { OldPass, NewPass, ConfrimNewPass } = req.body;
+  const userId = req.userId;
+  try {
+    if (!OldPass || !NewPass || !ConfrimNewPass) {
+      throw new apiError("All fields are required", 400, "VALIDATION_ERROR");
+    }
+
+    if (NewPass !== ConfrimNewPass) {
+      throw new apiError("Passwords do not match", 400, "PASSWORD_MISMATCH");
+    }
+
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      throw new apiError("User not found", 404, "USER_NOT_FOUND");
+    }
+
+    const isMatch = await bcrypt.compare(OldPass, user.password);
+    if (!isMatch) {
+      throw new apiError(
+        "Old password is incorrect",
+        401,
+        "INVALID_CREDENTIALS",
+      );
+    }
+
+    const HashNewPassword = await bcrypt.hash(NewPass, 12);
+
+    user.password = HashNewPassword;
+
+    await user.save();
+
+    return {
+      success: true,
+      message: "Your password has been updated successfully",
+    };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   register,
   Login,
+  getProfile,
+  updateProfile,
+  deleteAccount,
+  changePassword,
 };

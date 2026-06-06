@@ -1,7 +1,5 @@
 const authService = require("../services/auth.service");
-
 const asyncHandler = require("../middlewares/asyncHandler");
-const env = require("../config/env");
 
 const Register = asyncHandler(async (req, res) => {
   const result = await authService.register(req.body);
