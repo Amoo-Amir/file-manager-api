@@ -1,4 +1,4 @@
-const asyncHandler = require("../middleware/asynchandler");
+const asyncHandler = require("./asyncHandler");
 const jwt = require("jsonwebtoken");
 
 module.exports = asyncHandler(async (req, res, next) => {

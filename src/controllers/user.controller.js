@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const asyncHandler = require("../middlewares/asyncHandler");
+const asyncHandler = require("../../src/middlewares/asyncHandler.js");
 const bcrypt = require("bcrypt");
 
 const getProfile = asyncHandler(async (res, req) => {
@@ -120,7 +120,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
   }
 });
 
-const changePassword = asynchandler(async (req, res) => {
+const changePassword = asyncHandler(async (req, res) => {
   const { OldPass, NewPass, ConfrimNewPass } = req.body;
   const userId = req.userId;
   try {
@@ -132,7 +132,7 @@ const changePassword = asynchandler(async (req, res) => {
       });
     }
 
-    if (newPassword !== confirmNewPassword) {
+    if (NewPass !== ConfrimNewPass) {
       return res.status(400).json({
         success: false,
         message: "Passwords do not match",
