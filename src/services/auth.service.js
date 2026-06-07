@@ -156,7 +156,6 @@ const updateProfile = async (userId, data) => {
 };
 
 const deleteAccount = async (userId, data) => {
-  // const userId = userId;
   const { email, password } = data;
 
   const normalaizeEmail = String(email).toLowerCase().trim();
