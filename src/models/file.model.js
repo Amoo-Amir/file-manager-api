@@ -82,7 +82,7 @@ fileSchema.pre("save", function (next) {
 
 
 
-// ✅ درست — فقط روی find اعمال کن، نه findOne
+
 fileSchema.pre("find", function (next) {
   this.where({ isDeleted: false });
 
