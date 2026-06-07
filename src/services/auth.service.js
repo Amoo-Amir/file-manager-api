@@ -155,89 +155,81 @@ const updateProfile = async (userId, data) => {
   };
 };
 
-const deleteAccount = async (userId,data) => {
+const deleteAccount = async (userId, data) => {
   // const userId = userId;
   const { email, password } = data;
 
   const normalaizeEmail = String(email).toLowerCase().trim();
 
+  if (!email || !password) {
+    throw new apiError(
+      "Email and password are required",
+      400,
+      "VALIDATION_ERROR",
+    );
+  }
 
-    if (!email || !password) {
-      throw new apiError(
-        "Email and password are required",
-        400,
-        "VALIDATION_ERROR",
-      );
-    }
+  const user = await User.findOne({
+    email: normalaizeEmail,
+  }).select("+password");
+  if (!user) {
+    throw new apiError("User not found", 404, "USER_NOT_FOUND");
+  }
 
-    const user = await User.findOne({
-      email: normalaizeEmail,
-    }).select("+password");
-    if (!user) {
-      throw new apiError("User not found", 404, "USER_NOT_FOUND");
-    }
+  if (userId?.toString() !== user._id.toString()) {
+    throw new apiError(
+      "You are not allowed to delete this account",
+      403,
+      "FORBIDDEN",
+    );
+  }
 
-    if (userId?.toString() !== user._id.toString()) {
-      throw new apiError(
-        "You are not allowed to delete this account",
-        403,
-        "FORBIDDEN",
-      );
-    }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new apiError("Invalid credentials", 401, "INVALID_CREDENTIALS");
+  }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new apiError("Invalid credentials", 401, "INVALID_CREDENTIALS");
-    }
+  await User.findByIdAndDelete(userId);
 
-    await User.findByIdAndDelete(userId);
-
-    return {
-      success: true,
-      message: "Account deleted successfully",
-    };
-
+  return {
+    success: true,
+    message: "Account deleted successfully",
+  };
 };
 
-const changePassword = async (data) => {
-  const { OldPass, NewPass, ConfrimNewPass } = req.body;
-  const userId = req.userId;
-  try {
-    if (!OldPass || !NewPass || !ConfrimNewPass) {
-      throw new apiError("All fields are required", 400, "VALIDATION_ERROR");
-    }
+const changePassword = async (userId, data) => {
+  const { OldPass, NewPass, ConfrimNewPass } = data;
 
-    if (NewPass !== ConfrimNewPass) {
-      throw new apiError("Passwords do not match", 400, "PASSWORD_MISMATCH");
-    }
-
-    const user = await User.findById(userId).select("+password");
-    if (!user) {
-      throw new apiError("User not found", 404, "USER_NOT_FOUND");
-    }
-
-    const isMatch = await bcrypt.compare(OldPass, user.password);
-    if (!isMatch) {
-      throw new apiError(
-        "Old password is incorrect",
-        401,
-        "INVALID_CREDENTIALS",
-      );
-    }
-
-    const HashNewPassword = await bcrypt.hash(NewPass, 12);
-
-    user.password = HashNewPassword;
-
-    await user.save();
-
-    return {
-      success: true,
-      message: "Your password has been updated successfully",
-    };
-  } catch (error) {
-    console.log(error);
+  if (!OldPass || !NewPass || !ConfrimNewPass) {
+    throw new apiError("All fields are required", 400, "VALIDATION_ERROR");
   }
+
+  if (NewPass !== ConfrimNewPass) {
+    throw new apiError("Passwords do not match", 400, "PASSWORD_MISMATCH");
+  }
+
+  const user = await User.findById(userId).select("+password");
+  if (!user) {
+    throw new apiError("User not found", 404, "USER_NOT_FOUND");
+  }
+
+  const isMatch = await bcrypt.compare(OldPass, user.password);
+  if (!isMatch) {
+    throw new apiError(
+      "Old password is incorrect",
+      401,
+      "INVALID_CREDENTIALS",
+    );
+  }
+
+  const HashNewPassword = await bcrypt.hash(NewPass, 12);
+  user.password = HashNewPassword;
+  await user.save();
+
+  return {
+    success: true,
+    message: "Your password has been updated successfully",
+  };
 };
 
 module.exports = {

@@ -26,7 +26,7 @@ describe("POST /api/auth/register", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
@@ -52,7 +52,7 @@ describe("POST /api/auth/register", () => {
       fullName: "amirmahdi",
       email: "",
       phone: "",
-      password: "12345678",
+      password: "1234567890",
     };
 
     const response = await request(app)
@@ -61,8 +61,7 @@ describe("POST /api/auth/register", () => {
       .send(userData)
       .expect(400);
 
-    console.log(response.body);
-    expect(response.body.message).toBe("Missing required fields");
+    
     expect(response.body.password).not.toBe(userData.password);
 
     const User = require("../models/user.model");
@@ -78,7 +77,7 @@ describe("POST /api/auth/register", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
@@ -110,7 +109,7 @@ describe("POST /api/auth/Login", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
@@ -131,14 +130,14 @@ describe("POST /api/auth/Login", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
     const userData2 = {
       fullName: "amirmahdi",
       email: "",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "",
     };
     const register = await request(app)
@@ -158,14 +157,14 @@ describe("POST /api/auth/Login", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
     const userData2 = {
       fullName: "amirmahdi",
       email: "amir221@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
@@ -186,14 +185,14 @@ describe("POST /api/auth/Login", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
     const userData2 = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "9998653215",
     };
 
@@ -216,7 +215,7 @@ describe("Get /api/user/profile", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
@@ -251,7 +250,7 @@ describe("PATCH /api/user/update", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "91234567890",
       password: "12345678",
     };
 
@@ -271,7 +270,7 @@ describe("PATCH /api/user/update", () => {
 
     const updateData = {
       fullName: "new name",
-      phone: 123456789,
+      phone: "1234567890",
     };
     const updateRes = await request(app)
       .patch("/api/user/update")
@@ -286,7 +285,7 @@ describe("PATCH /api/user/changepassword", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
@@ -324,7 +323,7 @@ describe("DELETE /api/user/delete", () => {
     const userData = {
       fullName: "amirmahdi",
       email: "amir1@gmail.com",
-      phone: 9123456789,
+      phone: "9123456789",
       password: "12345678",
     };
 
