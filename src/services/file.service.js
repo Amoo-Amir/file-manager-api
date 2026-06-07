@@ -84,10 +84,8 @@ const filter = { owner: userId, isDeleted: false };
   };
 };
 
-// src/services/file.service.js
 
 const deleteFile = async (userId, fileId) => {
-  // ✅ isDeleted: false رو صریح بنویس
   const file = await File.findOne({ _id: fileId, owner: userId, isDeleted: false });
   if (!file) {
     throw new ApiError("File not found", 404, "FILE_NOT_FOUND");
@@ -98,7 +96,6 @@ const deleteFile = async (userId, fileId) => {
 };
 
 const downloadFile = async (userId, fileId) => {
-  // ✅ isDeleted: false رو صریح بنویس
   const file = await File.findOne({ _id: fileId, owner: userId, isDeleted: false });
   if (!file) {
     throw new ApiError("File not found", 404, "FILE_NOT_FOUND");
