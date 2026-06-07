@@ -1,46 +1,76 @@
-# File Manager API
+# 📁 File Manager API
 
-A RESTful API for file management built with Node.js, Express, and MongoDB. Supports user authentication, profile management, and file operations.
-
-## Tech Stack
-
-- **Runtime:** Node.js
-- **Framework:** Express v5
-- **Database:** MongoDB + Mongoose
-- **Auth:** JWT (Access Token)
-- **Password Hashing:** bcrypt
-- **Validation:** Joi
-- **Logging:** Winston
-- **Testing:** Jest + Supertest
+یک API آماده برای محیط production جهت مدیریت امن فایل‌ها، ساخته‌شده با **Node.js**، **Express v5** و **MongoDB**. این پروژه شامل احراز هویت مبتنی بر JWT، مدیریت کامل پروفایل کاربر، آپلود/دانلود/حذف فایل، حذف نرم‌افزاری (soft-delete) با پاک‌سازی خودکار، و پشتیبانی از Docker می‌باشد.
 
 ---
 
-## Getting Started
+## ✨ ویژگی‌ها
 
-### Prerequisites
+- 🔐 احراز هویت JWT (ثبت‌نام و ورود)
+- 👤 مدیریت پروفایل کاربر (مشاهده، ویرایش، تغییر رمز، حذف حساب)
+- 📤 آپلود فایل با دسته‌بندی خودکار بر اساس نوع MIME
+- 📥 دانلود فایل و مشاهده لیست فایل‌های هر کاربر
+- 🗑️ حذف نرم‌افزاری (soft-delete) با worker پاک‌سازی (هر ۲۴ ساعت)
+- ✅ اعتبارسنجی درخواست‌ها با Joi
+- 📋 لاگ‌گیری ساختارمند با Winston
+- 🧪 تست‌های یکپارچه با Jest و Supertest
+- 🐳 پشتیبانی از Docker و Docker Compose
 
-- Node.js v18+
-- MongoDB (local or Atlas)
+---
 
-### Installation
+## 🛠 تکنولوژی‌های استفاده‌شده
+
+| لایه | تکنولوژی |
+|---|---|
+| Runtime | Node.js v18+ |
+| فریمورک | Express v5 |
+| پایگاه داده | MongoDB + Mongoose |
+| احراز هویت | JWT (jsonwebtoken) |
+| هش رمز عبور | bcrypt |
+| آپلود فایل | Multer |
+| اعتبارسنجی | Joi |
+| لاگ‌گیری | Winston |
+| تست | Jest + Supertest |
+| کانتینرسازی | Docker + Docker Compose |
+
+---
+
+## 🚀 شروع به کار
+
+### پیش‌نیازها
+
+- Node.js نسخه ۱۸ یا بالاتر
+- MongoDB (محلی یا Atlas)
+
+### نصب محلی
 
 ```bash
-# 1. Clone the repo
+# ۱. کلون کردن مخزن
 git clone https://github.com/Amoo-Amir/file-manager-api.git
 cd file-manager-api
 
-# 2. Install dependencies
+# ۲. نصب وابستگی‌ها
 npm install
 
-# 3. Set up environment variables
+# ۳. تنظیم متغیرهای محیطی
 cp .env.example .env
-# Fill in your values in .env
+# فایل .env را با مقادیر خود ویرایش کنید
 
-# 4. Start development server
-npx nodemon src/server.js
+# ۴. اجرای سرور در محیط توسعه
+npm run dev
 ```
 
-### Environment Variables
+### اجرا با Docker
+
+```bash
+docker-compose up --build
+```
+
+این دستور هم سرور API (پورت `3008`) و هم یک نمونه MongoDB (پورت `27017`) با ذخیره‌سازی پایدار را راه‌اندازی می‌کند.
+
+---
+
+## ⚙️ متغیرهای محیطی
 
 ```env
 PORT=3008
@@ -48,43 +78,53 @@ NODE_ENV=development
 
 MONGO_URI=mongodb://localhost:27017/file-manager
 
-JWT_SECRET=your-strong-random-secret
+JWT_SECRET=یک-رشته-تصادفی-قوی
 JWT_EXPIRES_IN=7d
 ```
 
-> Generate a strong secret: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+> 💡 تولید یک secret قوی:
+> ```bash
+> node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+> ```
 
 ---
 
-## API Reference
+## 📡 مستندات API
 
-Base URL: `http://localhost:3008/api`
+**آدرس پایه:** `http://localhost:3008/api`
 
-### Auth
+تمام endpoint‌های محافظت‌شده نیاز به هدر زیر دارند:
+```
+Authorization: Bearer <token>
+```
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/auth/register` | ❌ | Register a new user |
-| POST | `/auth/login` | ❌ | Login and receive JWT token |
+---
+
+### 🔑 احراز هویت (Auth)
+
+| متد | مسیر | نیاز به احراز هویت | توضیح |
+|-----|------|:---:|-------|
+| POST | `/auth/register` | ❌ | ثبت‌نام کاربر جدید |
+| POST | `/auth/login` | ❌ | ورود و دریافت توکن JWT |
 
 #### POST `/auth/register`
 
 ```json
-// Request body
+// درخواست
 {
-  "fullName": "Amir Mahdi",
+  "fullName": "امیر مهدی",
   "email": "amir@example.com",
   "password": "securepassword",
   "phone": "09123456789"
 }
 
-// Response 201
+// پاسخ 201
 {
   "success": true,
   "message": "User created successfully",
   "data": {
     "id": "...",
-    "fullName": "Amir Mahdi",
+    "fullName": "امیر مهدی",
     "email": "amir@example.com",
     "phone": "09123456789"
   }
@@ -94,20 +134,20 @@ Base URL: `http://localhost:3008/api`
 #### POST `/auth/login`
 
 ```json
-// Request body
+// درخواست
 {
   "email": "amir@example.com",
   "password": "securepassword"
 }
 
-// Response 200
+// پاسخ 200
 {
   "success": true,
   "message": "Login successful",
   "token": "eyJhbGciOiJIUzI1NiIs...",
   "user": {
     "id": "...",
-    "fullName": "Amir Mahdi",
+    "fullName": "امیر مهدی",
     "email": "amir@example.com",
     "role": "user"
   }
@@ -116,31 +156,25 @@ Base URL: `http://localhost:3008/api`
 
 ---
 
-### User
+### 👤 کاربر (User)
 
-All user endpoints require the `Authorization` header:
-
-```
-Authorization: Bearer <token>
-```
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/user/profile` | ✅ | Get current user profile |
-| PATCH | `/user/update` | ✅ | Update name and phone |
-| PATCH | `/user/changepassword` | ✅ | Change password |
-| DELETE | `/user/delete` | ✅ | Delete account |
+| متد | مسیر | نیاز به احراز هویت | توضیح |
+|-----|------|:---:|-------|
+| GET | `/user/profile` | ✅ | دریافت پروفایل کاربر جاری |
+| PATCH | `/user/update` | ✅ | به‌روزرسانی نام و شماره تلفن |
+| PATCH | `/user/changepassword` | ✅ | تغییر رمز عبور |
+| DELETE | `/user/delete` | ✅ | حذف حساب کاربری (نیاز به تأیید اعتبار) |
 
 #### GET `/user/profile`
 
 ```json
-// Response 200
+// پاسخ 200
 {
   "success": true,
   "message": "Profile retrieved successfully",
   "data": {
     "id": "...",
-    "fullName": "Amir Mahdi",
+    "fullName": "امیر مهدی",
     "email": "amir@example.com",
     "phone": "09123456789",
     "role": "user"
@@ -151,9 +185,9 @@ Authorization: Bearer <token>
 #### PATCH `/user/update`
 
 ```json
-// Request body
+// درخواست
 {
-  "fullName": "New Name",
+  "fullName": "نام جدید",
   "phone": "09111111111"
 }
 ```
@@ -161,7 +195,7 @@ Authorization: Bearer <token>
 #### PATCH `/user/changepassword`
 
 ```json
-// Request body
+// درخواست
 {
   "OldPass": "securepassword",
   "NewPass": "newpassword123",
@@ -172,7 +206,7 @@ Authorization: Bearer <token>
 #### DELETE `/user/delete`
 
 ```json
-// Request body — requires confirmation with credentials
+// درخواست — نیاز به تأیید اعتبار برای حذف
 {
   "email": "amir@example.com",
   "password": "securepassword"
@@ -181,18 +215,69 @@ Authorization: Bearer <token>
 
 ---
 
-## Error Responses
+### 📁 فایل‌ها (Files)
 
-All errors follow this format:
+| متد | مسیر | نیاز به احراز هویت | توضیح |
+|-----|------|:---:|-------|
+| POST | `/files/upload` | ✅ | آپلود فایل |
+| GET | `/files` | ✅ | لیست تمام فایل‌های کاربر جاری |
+| GET | `/files/:id/download` | ✅ | دانلود فایل با شناسه |
+| DELETE | `/files/:id` | ✅ | حذف نرم‌افزاری فایل با شناسه |
+
+#### POST `/files/upload`
+
+درخواست باید به‌صورت `multipart/form-data` با فیلد `file` ارسال شود.
+
+فایل‌ها به‌صورت خودکار بر اساس نوع MIME دسته‌بندی می‌شوند:
+
+| دسته‌بندی | نوع‌های MIME |
+|----------|------------|
+| `image` | `image/*` |
+| `document` | `application/pdf`، `text/plain` |
+| `archive` | `application/zip`، `application/x-rar-compressed` |
+| `other` | سایر موارد |
+
+```json
+// پاسخ 201
+{
+  "success": true,
+  "message": "File uploaded successfully",
+  "data": {
+    "id": "...",
+    "originalName": "report.pdf",
+    "size": 204800,
+    "mimetype": "application/pdf",
+    "category": "document"
+  }
+}
+```
+
+#### GET `/files`
+
+تمام فایل‌های حذف‌نشده متعلق به کاربر احراز هویت‌شده را برمی‌گرداند.
+
+#### GET `/files/:id/download`
+
+فایل را به‌صورت stream برای دانلود ارسال می‌کند.
+
+#### DELETE `/files/:id`
+
+فایل را به‌صورت نرم‌افزاری حذف می‌کند (`isDeleted: true` و `deletedAt: <timestamp>`). حذف فیزیکی فایل توسط worker پاک‌سازی در پس‌زمینه انجام می‌شود.
+
+---
+
+## ❌ پاسخ‌های خطا
+
+تمام خطاها از یک قالب یکسان پیروی می‌کنند:
 
 ```json
 {
   "success": false,
-  "message": "Error description"
+  "message": "توضیح خطا"
 }
 ```
 
-Validation errors include field-level detail:
+خطاهای اعتبارسنجی شامل جزئیات فیلدها هستند:
 
 ```json
 {
@@ -205,36 +290,38 @@ Validation errors include field-level detail:
 }
 ```
 
-| Status | Meaning |
-|--------|---------|
-| 400 | Validation error / bad request |
-| 401 | Unauthorized / invalid credentials |
-| 403 | Forbidden |
-| 404 | Resource not found |
-| 409 | Conflict (e.g. email already exists) |
-| 500 | Internal server error |
+| کد وضعیت | معنا |
+|----------|------|
+| 400 | خطای اعتبارسنجی / درخواست نادرست |
+| 401 | احراز هویت نشده / اعتبارسنجی نادرست |
+| 403 | دسترسی ممنوع |
+| 404 | منبع یافت نشد |
+| 409 | تعارض (مثلاً ایمیل تکراری) |
+| 500 | خطای داخلی سرور |
 
 ---
 
-## Project Structure
+## 📂 ساختار پروژه
 
 ```
 src/
 ├── config/
-│   ├── db.js            # MongoDB connection
-│   └── env.js           # Environment variables
+│   ├── db.js                  # اتصال به MongoDB
+│   ├── env.js                 # بارگذاری متغیرهای محیطی
+│   └── multer.js              # تنظیمات ذخیره‌سازی Multer
 ├── controllers/
 │   ├── auth.controller.js
 │   ├── user.controller.js
 │   └── file.controller.js
 ├── middlewares/
-│   ├── auth.middleware.js     # JWT verification
-│   ├── asyncHandler.js        # Async error wrapper
-│   ├── error.middleware.js    # Global error handler
-│   └── validate.middleware.js # Joi validation
+│   ├── auth.middleware.js     # تأیید توکن JWT
+│   ├── asyncHandler.js        # پوشش خطاهای async
+│   ├── error.middleware.js    # هندلر سراسری خطا
+│   ├── upload.middleware.js   # هندلر آپلود Multer
+│   └── validate.middleware.js # اعتبارسنجی Joi
 ├── models/
 │   ├── user.model.js
-│   └── file.model.js
+│   └── file.model.js          # شامل soft-delete و دسته‌بندی خودکار
 ├── routes/
 │   ├── auth.routes.js
 │   ├── user.routes.js
@@ -242,57 +329,63 @@ src/
 ├── services/
 │   ├── auth.service.js
 │   └── file.service.js
+├── tests/
+│   ├── auth.test.js
+│   └── file.test.js
 ├── utils/
-│   ├── apiError.js      # Custom error class
-│   └── logger.js        # Winston logger
+│   ├── apiError.js            # کلاس خطای سفارشی
+│   └── logger.js              # تنظیمات Winston
 ├── validations/
 │   ├── auth.validation.js
 │   └── user.validation.js
 ├── workers/
-│   └── cleanup.worker.js
+│   └── cleanup.worker.js      # پاک‌سازی فایل‌های حذف‌شده هر ۲۴ ساعت
 ├── app.js
 └── server.js
 ```
 
 ---
 
-## Testing
+## 🧪 تست‌ها
 
 ```bash
-# Run all tests
+# اجرای تمام تست‌ها
 npm test
 
-# Watch mode
+# حالت watch
 npm run test:watch
 ```
 
-Tests are located in `src/tests/` and cover:
+پوشش تست‌ها شامل موارد زیر است:
 
-- User registration (valid data, missing fields, duplicate email)
-- Login (valid credentials, wrong email, wrong password)
-- Profile retrieval and update
-- Password change
-- Account deletion
-
----
-
-## Roadmap
-
-- [x] User authentication (register / login)
-- [x] JWT middleware
-- [x] Profile management
-- [x] Input validation (Joi)
-- [x] Structured logging (Winston)
-- [ ] File upload (multer)
-- [ ] File download / delete
-- [ ] Cleanup worker (expired files)
-- [ ] Rate limiting
-- [ ] Refresh token
-- [ ] Docker support
-- [ ] Swagger / OpenAPI docs
+- ثبت‌نام کاربر (داده معتبر، فیلدهای ناقص، ایمیل تکراری)
+- ورود (اعتبارسنجی صحیح، ایمیل اشتباه، رمز اشتباه)
+- دریافت و به‌روزرسانی پروفایل
+- تغییر رمز عبور
+- حذف حساب کاربری
+- آپلود، لیست، دانلود و حذف فایل
 
 ---
 
-## License
+## 🗺 نقشه راه
+
+- [x] احراز هویت JWT (ثبت‌نام / ورود)
+- [x] میدلور JWT
+- [x] مدیریت پروفایل (مشاهده، ویرایش، حذف)
+- [x] تغییر رمز عبور
+- [x] اعتبارسنجی ورودی (Joi)
+- [x] لاگ‌گیری ساختارمند (Winston)
+- [x] آپلود فایل (Multer)
+- [x] لیست و دانلود فایل
+- [x] حذف نرم‌افزاری و worker پاک‌سازی
+- [x] Docker و Docker Compose
+- [ ] محدودسازی نرخ درخواست (Rate Limiting)
+- [ ] پشتیبانی از Refresh Token
+- [ ] مستندات Swagger / OpenAPI
+- [ ] اشتراک‌گذاری فایل بین کاربران
+
+---
+
+## 📄 مجوز
 
 ISC
